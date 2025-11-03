@@ -19,6 +19,9 @@ public class SharedBuffer<T>{
     public void append_element(T item) throws InterruptedException {
         full.acquire();
         mutex.acquire();
+        if(mutex.availablePermits() == 0){
+            System.out.println("im waiting");
+        }
         queue.add(item);
         mutex.release();
         empty.release();
@@ -26,10 +29,10 @@ public class SharedBuffer<T>{
 
     public T take_element() throws InterruptedException {
         empty.acquire();
+        mutex.acquire();
         if(mutex.availablePermits() == 0){
             System.out.println("im waiting");
         }
-        mutex.acquire();
         T element = queue.poll();
         mutex.release();
         full.release();
